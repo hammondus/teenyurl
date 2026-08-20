@@ -27,9 +27,13 @@ var staticFS embed.FS
 const repoURL = "https://github.com/hammondus/teenyurl"
 
 // page carries the fields base.html needs. Every page's data embeds it.
+// Styles and Scripts name extra assets, so the public pages do not carry the
+// admin stylesheet and the admin script.
 type page struct {
 	Title   string
 	NoIndex bool
+	Styles  []string
+	Scripts []string
 }
 
 // renderer holds one parsed template per page, plus the static assets those
@@ -48,7 +52,11 @@ func newRenderer() (*renderer, error) {
 	if err != nil {
 		return nil, err
 	}
-	funcs := template.FuncMap{"asset": assets.url}
+	funcs := template.FuncMap{
+		"asset":   assets.url,
+		"iso":     isoTime,
+		"dtvalue": dtValue,
+	}
 	rn := &renderer{pages: make(map[string]*template.Template), assets: assets}
 	for _, name := range names {
 		base := path.Base(name)
@@ -98,6 +106,40 @@ func (rn *renderer) render(w http.ResponseWriter, status int, name string, data 
 	h.Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(status)
 	w.Write(buf.Bytes())
+}
+
+// asTime accepts either form a template might hold a timestamp in.
+func asTime(v any) (time.Time, bool) {
+	switch t := v.(type) {
+	case time.Time:
+		return t, !t.IsZero()
+	case *time.Time:
+		if t == nil {
+			return time.Time{}, false
+		}
+		return *t, !t.IsZero()
+	}
+	return time.Time{}, false
+}
+
+// isoTime fills a <time> element's datetime attribute. Everything is stored
+// and rendered as UTC; the page's JavaScript rewrites the visible text into
+// the reader's own zone, which keeps tzdata out of the container image.
+func isoTime(v any) string {
+	t, ok := asTime(v)
+	if !ok {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
+}
+
+// dtvalue fills a datetime-local input, which takes no zone and no seconds.
+func dtValue(v any) string {
+	t, ok := asTime(v)
+	if !ok {
+		return ""
+	}
+	return t.UTC().Format("2006-01-02T15:04")
 }
 
 // staticFile is one embedded asset and its content hash.

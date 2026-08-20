@@ -21,9 +21,15 @@ func testServer(t *testing.T) *server {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cfg := config{baseURL: "https://url.hammond.zone", codeLen: 6}
+	cfg := config{
+		baseURL:       "https://url.hammond.zone",
+		codeLen:       6,
+		adminPassword: testPassword,
+		sessionTTL:    24 * time.Hour,
+	}
 	s := newServer(cfg, store, rn, trust)
 	s.now = func() time.Time { return testTime }
+	s.auth.now = s.now
 	return s
 }
 

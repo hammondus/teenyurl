@@ -1,0 +1,139 @@
+{{define "content"}}
+<header class="admin-head">
+  <div>
+    <h1 class="mark">teeny<span>url</span></h1>
+    <p class="lede">{{.Host}}</p>
+  </div>
+  <form method="post" action="/admin/logout">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button type="submit" class="link-button">Sign out</button>
+  </form>
+</header>
+
+{{- if .Flash}}
+<p class="banner ok" role="status">{{.Flash}}</p>
+{{- end}}
+{{- if .ErrorMsg}}
+<p class="banner error" role="alert">{{.ErrorMsg}}</p>
+{{- end}}
+
+<section class="card">
+  <h2>New link</h2>
+  <form method="post" action="/admin/links" class="link-form" data-tz>
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <input type="hidden" name="tz_offset" value="">
+
+    <div class="field span">
+      <label for="new-url">Destination</label>
+      <input id="new-url" name="url" type="url" inputmode="url" required
+             placeholder="https://example.com/somewhere" value="{{.Form.URL}}">
+    </div>
+
+    <div class="field">
+      <label for="new-code">Custom code <span class="hint">optional</span></label>
+      <input id="new-code" name="code" type="text" autocapitalize="off" autocorrect="off"
+             spellcheck="false" placeholder="auto" value="{{.Form.Code}}">
+    </div>
+
+    <div class="field">
+      <label for="new-expires">Expires <span class="hint">optional</span></label>
+      <input id="new-expires" name="expires" type="datetime-local" value="{{.Form.Expires}}">
+    </div>
+
+    <div class="field span">
+      <label for="new-note">Note <span class="hint">optional, for you only</span></label>
+      <input id="new-note" name="note" type="text" value="{{.Form.Note}}"
+             placeholder="What this link is for">
+    </div>
+
+    <div class="field span actions">
+      <button type="submit" class="button">Create link</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <div class="list-head">
+    <h2>{{len .Links}} link{{if ne (len .Links) 1}}s{{end}}</h2>
+    <input id="filter" type="search" placeholder="Filter" aria-label="Filter links"
+           autocomplete="off" hidden>
+  </div>
+
+  {{- if not .Links}}
+  <p class="empty">No links yet. Create one above.</p>
+  {{- end}}
+
+  <ul class="links" id="links">
+    {{- range .Links}}
+    <li class="link{{if .Expired}} is-expired{{end}}"
+        data-search="{{.Code}} {{.URL}} {{.Note}}">
+      <div class="link-top">
+        <a class="link-code" href="{{$.BaseURL}}/{{.Code}}">{{.Code}}</a>
+        <button type="button" class="copy" data-copy="{{$.BaseURL}}/{{.Code}}"
+                aria-label="Copy the short link for {{.Code}}">Copy</button>
+        <a class="preview" href="/{{.Code}}+">Preview</a>
+      </div>
+
+      <a class="link-dest" href="{{.URL}}" rel="noopener noreferrer">{{.URL}}</a>
+      {{- if .Note}}
+      <p class="link-note">{{.Note}}</p>
+      {{- end}}
+
+      <p class="link-meta">
+        <span>{{.Clicks}} click{{if ne .Clicks 1}}s{{end}}</span>
+        {{- if not .LastClick.IsZero}}
+        <span>last <time datetime="{{iso .LastClick}}">{{iso .LastClick}}</time></span>
+        {{- end}}
+        <span>made <time datetime="{{iso .CreatedAt}}">{{iso .CreatedAt}}</time></span>
+        {{- if .ExpiresAt}}
+        <span class="expiry">{{if .Expired}}expired{{else}}expires{{end}}
+          <time datetime="{{iso .ExpiresAt}}">{{iso .ExpiresAt}}</time></span>
+        {{- end}}
+      </p>
+
+      <details class="edit">
+        <summary>Edit</summary>
+        <form method="post" action="/admin/links/{{.Code}}/update" class="link-form" data-tz>
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <input type="hidden" name="tz_offset" value="">
+
+          <div class="field span">
+            <label for="url-{{.Code}}">Destination</label>
+            <input id="url-{{.Code}}" name="url" type="url" required value="{{.URL}}">
+          </div>
+          <div class="field span">
+            <label for="note-{{.Code}}">Note</label>
+            <input id="note-{{.Code}}" name="note" type="text" value="{{.Note}}">
+          </div>
+          <div class="field">
+            <label for="exp-{{.Code}}">Expires</label>
+            <input id="exp-{{.Code}}" name="expires" type="datetime-local"
+                   value="{{dtvalue .ExpiresAt}}">
+          </div>
+          <div class="field actions">
+            <button type="submit" class="button">Save</button>
+          </div>
+        </form>
+
+        <form method="post" action="/admin/links/{{.Code}}/delete" class="danger"
+              data-confirm="Delete {{.Code}}? Anyone holding this link gets a 404.">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <button type="submit" class="button-danger">Delete {{.Code}}</button>
+          <span class="hint">This cannot be undone.</span>
+        </form>
+      </details>
+    </li>
+    {{- end}}
+  </ul>
+</section>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <p id="confirm-text"></p>
+    <menu>
+      <button value="cancel" class="link-button">Cancel</button>
+      <button value="go" class="button-danger">Delete</button>
+    </menu>
+  </form>
+</dialog>
+{{end}}

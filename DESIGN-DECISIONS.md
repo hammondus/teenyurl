@@ -47,6 +47,14 @@ next restart.
 Deletion appends a record with `"deleted": true`. Without that tombstone,
 replay resurrects every deleted link, because the create line is still there.
 
+### Record tags use omitzero, not omitempty
+
+`omitempty` never skips a struct, however empty, so a zero `time.Time` would be
+written into every create record. `UpdatedAt` therefore uses `omitzero`, which
+asks the value itself. The tag choice matters more here than in an API response
+because the log is the durable format: junk written today has to be tolerated
+by every replay from now on.
+
 ### The on-disk format is the import and export format
 
 Bulk import is `cat more.jsonl >> links.jsonl` and a restart. Export is `cat`.
@@ -106,6 +114,11 @@ Because `make deploy` runs `git pull`, `docker-compose.yaml` is in the repo.
 The password lives in a git-ignored `.env` on the server, loaded through
 `env_file:`.
 
+The service refuses to start when `TEENYURL_ADMIN_PASSWORD` is unset or under
+twelve characters. Without that check a misconfigured deployment would serve an
+admin surface that accepts an empty password, and the length is the only
+strength the credential has.
+
 Sessions are 32 random bytes in an in-memory map with a TTL. Restarting the
 container logs you out. The cookie is `HttpOnly`, `Secure`, and `SameSite=Lax`.
 
@@ -120,6 +133,35 @@ resets their own rate limit bucket. `clientip.go` honours forwarding headers
 only when the immediate peer is in `TEENYURL_TRUSTED_PROXIES`, the same approach
 as `yourInfo`. This is the second project to need that logic; a third makes it
 worth extracting into a shared module.
+
+## Admin UI
+
+The delete control sits inside the per-row `<details>` edit panel rather than
+beside each row. Destroying a link then takes two deliberate clicks using only
+native HTML. The `<dialog>` confirmation that `admin.js` adds is an
+enhancement on top, not the only guard, so the page stays safe when a script
+fails to load. A bare delete button in every row, guarded only by JavaScript,
+gets this backwards.
+
+Everything else on the page follows the same rule. The forms post, the edit
+panels open, and the filter box stays hidden until its script wires it up.
+
+### Times are entered locally and stored as UTC
+
+A `datetime-local` input carries no time zone. The page posts the browser's
+offset in a hidden field, using the same sign as `Date.getTimezoneOffset`:
+minutes to add to local time to reach UTC. With no offset, which means the page
+ran without JavaScript, the server reads the value as UTC.
+
+Times are rendered as UTC in `<time>` elements and rewritten into the reader's
+zone by `admin.js`. That is what lets the container image skip `tzdata`.
+
+### Confirmation text is not taken from the URL
+
+After a create, edit, or delete the handler redirects to `/admin?created=<code>`
+and so on. The wording is chosen from a fixed list in the handler, and only the
+code comes from the query. A crafted link cannot put arbitrary text on the
+page.
 
 ## Codes: 6 random characters, no lookalikes
 

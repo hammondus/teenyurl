@@ -23,9 +23,17 @@ type config struct {
 	addr           string
 	baseURL        string
 	dataDir        string
+	adminPassword  string
 	trustedProxies string
+	sessionTTL     time.Duration
 	flushInterval  time.Duration
 	codeLen        int
+}
+
+// secureCookies marks the session cookie Secure when the service is reached
+// over HTTPS, which it always is in production and never is on localhost.
+func (c config) secureCookies() bool {
+	return strings.HasPrefix(c.baseURL, "https://")
 }
 
 // host is the display name of the service, for the landing page.
@@ -42,11 +50,20 @@ func loadConfig() (config, error) {
 		addr:           envOr("TEENYURL_ADDR", ":8080"),
 		baseURL:        strings.TrimRight(envOr("TEENYURL_BASE_URL", "http://localhost:8080"), "/"),
 		dataDir:        envOr("TEENYURL_DATA_DIR", "data"),
+		adminPassword:  os.Getenv("TEENYURL_ADMIN_PASSWORD"),
 		trustedProxies: envOr("TEENYURL_TRUSTED_PROXIES", "127.0.0.1/32,::1/128"),
 	}
 	var err error
+	if c.sessionTTL, err = envDuration("TEENYURL_SESSION_TTL", 24*time.Hour); err != nil {
+		return c, err
+	}
 	if c.flushInterval, err = envDuration("TEENYURL_FLUSH_INTERVAL", 30*time.Second); err != nil {
 		return c, err
+	}
+	// Refuse to start without a credential. The password is compared as-is
+	// rather than hashed, so its length is the only strength it has.
+	if len(c.adminPassword) < minPasswordLen {
+		return c, fmt.Errorf("TEENYURL_ADMIN_PASSWORD must be set and at least %d characters", minPasswordLen)
 	}
 	if c.codeLen, err = envInt("TEENYURL_CODE_LEN", defaultCodeLen); err != nil {
 		return c, err

@@ -17,11 +17,13 @@ import (
 // appends a record with Deleted set; without that tombstone, replay would
 // resurrect the link from its earlier create record.
 type Link struct {
-	Code      string     `json:"code"`
-	URL       string     `json:"url"`
-	Note      string     `json:"note,omitempty"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at,omitempty"`
+	Code      string    `json:"code"`
+	URL       string    `json:"url"`
+	Note      string    `json:"note,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	// omitzero, not omitempty: omitempty never skips a struct, so a zero
+	// time.Time would be written into every create record.
+	UpdatedAt time.Time  `json:"updated_at,omitzero"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	Deleted   bool       `json:"deleted,omitempty"`
 }

@@ -1,0 +1,227 @@
+/* teenyurl — admin pages. Loaded only where the session cookie is. */
+
+.wrap.admin, body.admin .wrap { max-width: 52rem; }
+
+/* Sign in */
+
+.signin { max-width: 22rem; margin: 4rem auto 0; }
+.signin form { display: grid; gap: 0.5rem; margin-top: 1.5rem; }
+
+label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+input[type="text"], input[type="url"], input[type="password"],
+input[type="search"], input[type="datetime-local"] {
+  width: 100%;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+}
+
+input:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button { font: inherit; cursor: pointer; }
+
+.button, .button-danger {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.button { background: var(--accent); color: var(--accent-ink); }
+.button-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+.button-danger:hover { background: var(--danger); color: var(--accent-ink); }
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-size: 0.9rem;
+}
+
+/* Banners */
+
+.banner {
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  border: 1px solid;
+}
+
+.banner.ok { border-color: var(--line); background: var(--panel); }
+.banner.error { border-color: var(--danger); color: var(--danger); background: transparent; }
+
+/* Layout */
+
+.admin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-head h1 { font-size: 1.6rem; margin: 0; }
+.admin-head .lede { font-size: 0.9rem; margin: 0; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.card h2 { margin-top: 0; }
+
+.link-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1rem;
+}
+
+.field { display: grid; gap: 0.3rem; align-content: start; }
+.field.span { grid-column: 1 / -1; }
+.field.actions { align-self: end; }
+
+@media (max-width: 34rem) {
+  .link-form { grid-template-columns: 1fr; }
+  .field.span { grid-column: auto; }
+}
+
+.list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.list-head h2 { margin-bottom: 0.75rem; }
+.list-head input { max-width: 12rem; }
+
+.empty { color: var(--ink-soft); }
+
+/* Link list */
+
+.links { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+
+.link {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+}
+
+.link.is-expired { opacity: 0.6; }
+
+.link-top { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+.link-code {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.copy, .preview {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  text-decoration: none;
+}
+
+.copy:hover, .preview:hover { color: var(--ink); border-color: var(--ink-soft); }
+.copy[data-copied]::after { content: "  ✓"; }
+
+.link-dest {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  word-break: break-all;
+  color: var(--ink);
+  text-decoration-color: var(--line);
+}
+
+.link-note { margin: 0.35rem 0 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+.link-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.link-meta .expiry { color: var(--danger); }
+
+/* Edit panel. The delete control lives inside it, so destroying a link takes
+   two deliberate clicks with no JavaScript involved. */
+
+.edit { margin-top: 0.7rem; border-top: 1px solid var(--line); padding-top: 0.6rem; }
+
+.edit summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.edit[open] summary { margin-bottom: 0.9rem; }
+
+.danger {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.danger .hint { font-size: 0.8rem; color: var(--ink-soft); }
+
+/* Confirm dialog */
+
+dialog {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 1.25rem 1.5rem;
+  max-width: 26rem;
+}
+
+dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+dialog menu { display: flex; gap: 1rem; align-items: center; justify-content: flex-end;
+              margin: 1rem 0 0; padding: 0; }

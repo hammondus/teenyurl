@@ -5,7 +5,10 @@ import (
 	"time"
 )
 
+const testPassword = "correct horse battery"
+
 func TestLoadConfigDefaults(t *testing.T) {
+	t.Setenv("TEENYURL_ADMIN_PASSWORD", testPassword)
 	c, err := loadConfig()
 	if err != nil {
 		t.Fatalf("loadConfig: %v", err)
@@ -19,9 +22,28 @@ func TestLoadConfigDefaults(t *testing.T) {
 	if c.flushInterval != 30*time.Second {
 		t.Errorf("flushInterval = %v", c.flushInterval)
 	}
+	if c.sessionTTL != 24*time.Hour {
+		t.Errorf("sessionTTL = %v", c.sessionTTL)
+	}
+	// localhost is plain HTTP, so a Secure cookie would never be sent.
+	if c.secureCookies() {
+		t.Error("secureCookies is true for an http:// base URL")
+	}
+}
+
+func TestLoadConfigRequiresAPassword(t *testing.T) {
+	t.Setenv("TEENYURL_ADMIN_PASSWORD", "")
+	if _, err := loadConfig(); err == nil {
+		t.Error("loadConfig started with no admin password")
+	}
+	t.Setenv("TEENYURL_ADMIN_PASSWORD", "short")
+	if _, err := loadConfig(); err == nil {
+		t.Error("loadConfig accepted a password below the minimum length")
+	}
 }
 
 func TestLoadConfigFromEnvironment(t *testing.T) {
+	t.Setenv("TEENYURL_ADMIN_PASSWORD", testPassword)
 	t.Setenv("TEENYURL_ADDR", "127.0.0.1:9000")
 	t.Setenv("TEENYURL_BASE_URL", "https://url.hammond.zone/")
 	t.Setenv("TEENYURL_FLUSH_INTERVAL", "5s")
@@ -44,6 +66,9 @@ func TestLoadConfigFromEnvironment(t *testing.T) {
 	if c.flushInterval != 5*time.Second || c.codeLen != 8 {
 		t.Errorf("flushInterval = %v, codeLen = %d", c.flushInterval, c.codeLen)
 	}
+	if !c.secureCookies() {
+		t.Error("secureCookies is false for an https:// base URL")
+	}
 }
 
 func TestLoadConfigRejectsBadValues(t *testing.T) {
@@ -56,9 +81,12 @@ func TestLoadConfigRejectsBadValues(t *testing.T) {
 		{"TEENYURL_CODE_LEN", "many"},
 		{"TEENYURL_CODE_LEN", "0"},
 		{"TEENYURL_CODE_LEN", "65"},
+		{"TEENYURL_SESSION_TTL", "never"},
+		{"TEENYURL_SESSION_TTL", "0s"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.key+"="+tt.value, func(t *testing.T) {
+			t.Setenv("TEENYURL_ADMIN_PASSWORD", testPassword)
 			t.Setenv(tt.key, tt.value)
 			if _, err := loadConfig(); err == nil {
 				t.Errorf("loadConfig accepted %s=%q", tt.key, tt.value)

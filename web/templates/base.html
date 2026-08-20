@@ -10,6 +10,12 @@
 <title>{{.Title}}</title>
 <link rel="icon" href="{{asset "favicon.svg"}}" type="image/svg+xml">
 <link rel="stylesheet" href="{{asset "app.css"}}">
+{{- range .Styles}}
+<link rel="stylesheet" href="{{asset .}}">
+{{- end}}
+{{- range .Scripts}}
+<script src="{{asset .}}" defer></script>
+{{- end}}
 </head>
 <body>
 <main class="wrap">

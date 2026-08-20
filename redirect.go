@@ -13,12 +13,15 @@ type server struct {
 	store *Store
 	rn    *renderer
 	trust *proxyTrust
+	auth  *authenticator
 	// now is a field so that tests can control expiry without sleeping.
 	now func() time.Time
 }
 
 func newServer(cfg config, store *Store, rn *renderer, trust *proxyTrust) *server {
-	return &server{cfg: cfg, store: store, rn: rn, trust: trust, now: time.Now}
+	s := &server{cfg: cfg, store: store, rn: rn, trust: trust, now: time.Now}
+	s.auth = newAuthenticator(cfg.adminPassword, cfg.sessionTTL, cfg.secureCookies(), trust)
+	return s
 }
 
 func (s *server) routes() http.Handler {
@@ -30,6 +33,9 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("GET /robots.txt", s.handleRobots)
 	mux.HandleFunc("GET /healthz", s.handleHealth)
 	mux.Handle("GET /static/{file}", s.rn.assets)
+	s.adminRoutes(mux)
+	// Registered last for readability only: a literal pattern always beats
+	// this wildcard, whatever the order.
 	mux.HandleFunc("GET /{code}", s.handleCode)
 	return mux
 }

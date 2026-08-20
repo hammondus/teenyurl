@@ -452,3 +452,25 @@ func TestConcurrentClicksAndWrites(t *testing.T) {
 		t.Errorf("clicks = %d, want %d", n, readers*hits)
 	}
 }
+
+func TestCreateRecordOmitsTheZeroUpdatedAt(t *testing.T) {
+	// omitempty never skips a struct, so the tag has to be omitzero. The log
+	// is the durable format: junk written today must be tolerated forever.
+	dir := t.TempDir()
+	s := newStore(t, dir)
+	if _, err := s.Create("docs", "https://example.com", "", nil, testTime); err != nil {
+		t.Fatal(err)
+	}
+	s.Close()
+
+	b, err := os.ReadFile(filepath.Join(dir, linksFileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "updated_at") {
+		t.Errorf("a created record carries updated_at:\n%s", b)
+	}
+	if !strings.Contains(string(b), "created_at") {
+		t.Errorf("a created record is missing created_at:\n%s", b)
+	}
+}

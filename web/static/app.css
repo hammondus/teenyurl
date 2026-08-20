@@ -8,6 +8,7 @@
   --ink-soft: #6b6659;
   --accent: #9a4b21;
   --accent-ink: #ffffff;
+  --danger: #a32020;
   --radius: 10px;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
@@ -23,6 +24,7 @@
     --ink-soft: #9c968a;
     --accent: #e08b57;
     --accent-ink: #201e18;
+    --danger: #e2706b;
   }
 }
 

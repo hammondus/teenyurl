@@ -1,0 +1,14 @@
+{{define "content"}}
+<div class="signin">
+  <h1 class="mark">teeny<span>url</span></h1>
+  {{- if .Message}}
+  <p class="banner error" role="alert">{{.Message}}</p>
+  {{- end}}
+  <form method="post" action="/admin/login">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password"
+           autofocus required>
+    <button type="submit" class="button">Sign in</button>
+  </form>
+</div>
+{{end}}
