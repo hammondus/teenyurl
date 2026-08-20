@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+{{- if .NoIndex}}
+<meta name="robots" content="noindex, nofollow">
+{{- end}}
+<title>{{.Title}}</title>
+<link rel="icon" href="{{asset "favicon.svg"}}" type="image/svg+xml">
+<link rel="stylesheet" href="{{asset "app.css"}}">
+</head>
+<body>
+<main class="wrap">
+{{template "content" .}}
+</main>
+</body>
+</html>

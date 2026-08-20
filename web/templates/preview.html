@@ -1,0 +1,24 @@
+{{define "content"}}
+<header class="hero">
+  <p class="eyebrow">Link preview</p>
+  <h1 class="code">{{.Link.Code}}</h1>
+</header>
+
+<section class="target">
+  <p class="label">This link goes to</p>
+  <p class="host">{{.Host}}</p>
+  <p class="full">{{.Link.URL}}</p>
+  {{- if .Link.Note}}
+  <p class="note">{{.Link.Note}}</p>
+  {{- end}}
+</section>
+
+<p class="actions">
+  <a class="button" rel="noopener noreferrer" href="{{.Link.URL}}">Continue</a>
+</p>
+
+<p class="fineprint">
+  Nobody has checked that this destination is safe. Read the address above
+  before you continue.
+</p>
+{{end}}

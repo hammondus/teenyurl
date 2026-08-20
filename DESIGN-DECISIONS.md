@@ -93,7 +93,7 @@ under `/var/lib/docker/volumes/`, which is root-owned and awkward to address. Co
 
 ## Auth: one password, no hash
 
-`SHORT_ADMIN_PASSWORD` holds the plaintext, compared with
+`TEENYURL_ADMIN_PASSWORD` holds the plaintext, compared with
 `subtle.ConstantTimeCompare`.
 
 Hashing protects a password database from whoever reads it. There is no
@@ -117,7 +117,7 @@ Login is rate limited per client IP, five attempts per fifteen minutes.
 Resolving the client IP correctly matters here, not just for logging:
 `X-Forwarded-For` is attacker-controlled, so an attacker who can forge it
 resets their own rate limit bucket. `clientip.go` honours forwarding headers
-only when the immediate peer is in `SHORT_TRUSTED_PROXIES`, the same approach
+only when the immediate peer is in `TEENYURL_TRUSTED_PROXIES`, the same approach
 as `yourInfo`. This is the second project to need that logic; a third makes it
 worth extracting into a shared module.
 
@@ -129,7 +129,7 @@ by hand. Dropping the ambiguous glyphs costs 4 characters of alphabet and
 removes the most common transcription error.
 
 Six characters gives 34 billion combinations. Against hundreds of links, a
-random guess lands about once in 10^8 tries. `SHORT_CODE_LEN` overrides it.
+random guess lands about once in 10^8 tries. `TEENYURL_CODE_LEN` overrides it.
 
 Bytes come from `crypto/rand` with rejection sampling: discard any byte of 228
 or more, then take modulo 57. Plain `b % 57` biases the first 28 characters of
@@ -234,15 +234,18 @@ Served at `/admin/qr/{code}.png` and `.svg`, admin-only, with a size cap.
 both would mean two places to look when a setting appears wrong.
 
 ```
-SHORT_ADDR=:8080
-SHORT_BASE_URL=https://url.hammond.zone
-SHORT_DATA_DIR=/data
-SHORT_ADMIN_PASSWORD=          # .env on the server, never committed
-SHORT_TRUSTED_PROXIES=172.16.0.0/12,127.0.0.1/32,::1/128
-SHORT_SESSION_TTL=24h
-SHORT_FLUSH_INTERVAL=30s
-SHORT_CODE_LEN=6
+TEENYURL_ADDR=:8080
+TEENYURL_BASE_URL=https://url.hammond.zone
+TEENYURL_DATA_DIR=/data
+TEENYURL_ADMIN_PASSWORD=          # .env on the server, never committed
+TEENYURL_TRUSTED_PROXIES=172.16.0.0/12,127.0.0.1/32,::1/128
+TEENYURL_SESSION_TTL=24h
+TEENYURL_FLUSH_INTERVAL=30s
+TEENYURL_CODE_LEN=6
 ```
+
+The prefix matches the binary name. It was `SHORT_` in the first draft of this
+document, before the project had a name.
 
 ## Times are UTC everywhere
 

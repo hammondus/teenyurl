@@ -48,7 +48,8 @@ type Store struct {
 	// redirects then never block each other and never touch the disk.
 	clicks map[string]*clickCount
 
-	logFile *os.File
+	logFile   *os.File
+	closeOnce sync.Once
 
 	// dirty marks unflushed click counts.
 	dirty atomic.Bool
@@ -443,12 +444,17 @@ func (s *Store) FlushLoop(ctx context.Context, interval time.Duration) {
 	}
 }
 
-// Close flushes click counts and closes the log.
+// Close flushes click counts and closes the log. It is idempotent, so a
+// deferred Close guarding the error paths does not fight the explicit one on
+// the shutdown path.
 func (s *Store) Close() error {
-	err := s.FlushClicks()
-	if cerr := s.logFile.Close(); err == nil {
-		err = cerr
-	}
+	var err error
+	s.closeOnce.Do(func() {
+		err = s.FlushClicks()
+		if cerr := s.logFile.Close(); err == nil {
+			err = cerr
+		}
+	})
 	return err
 }
 
