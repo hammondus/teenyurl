@@ -1,0 +1,10 @@
+# Secrets. The repository is public; the admin password lives here on the
+# server and is never committed.
+.env
+
+# Build output.
+/teenyurl
+/dist/
+
+# Local data directory, when running outside Docker.
+/data/
