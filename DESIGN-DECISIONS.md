@@ -1,7 +1,8 @@
-# Design decisions — short-url
+# Design decisions — teenyurl
 
-Rationale for choices that aren't obvious from the code. Written before the
-first line of code, so treat it as the plan until the code lands.
+Rationale for choices that aren't obvious from the code, and the alternatives
+that were rejected. Written before the first line of code and kept current as
+the code landed.
 
 A self-hosted URL shortener on `url.hammond.zone`. Single Go binary, embedded
 vanilla frontend, Docker container behind Nginx Proxy Manager.
@@ -91,7 +92,8 @@ links, rewrite it through temp file and `rename`.
 
 The data directory is a bind mount from `/srv/short-url/data` on the host, not
 a named Docker volume, so `rsync` can target it directly. A named volume lives
-under `/var/lib/docker/volumes/`, which is root-owned and awkward to address. Copying while the service runs is safe:
+under `/var/lib/docker/volumes/`, which is root-owned and awkward to address.
+Copying while the service runs is safe:
 
 - `links.jsonl` only ever grows at the end, so a copy taken mid-append is the
   file minus its tail, and replay already tolerates a truncated final line.
@@ -295,6 +297,12 @@ Stored, served, and logged as UTC. The browser formats them for display. This
 keeps `tzdata` out of the image, which is what lets the final stage be
 `scratch`.
 
+## The healthcheck is a subcommand
+
+`teenyurl healthcheck` asks the running server for `/healthz` and exits 0 or 1.
+The final image is `FROM scratch`, so there is no shell and no `curl` for a
+`HEALTHCHECK CMD` to run. The binary has to check itself.
+
 ## Container publishes no ports
 
 The container joins the existing external `blobbyboo` network, where Nginx
@@ -316,6 +324,22 @@ Per house policy:
 
 Hashing assets once at startup is correct here specifically because they are
 embedded in the binary and cannot change while the process runs.
+
+## QR images are drawn here, not by the library
+
+Only `qr.Encode` and `Code.Black` come from `rsc.io/qr`. Both the PNG and the
+SVG are drawn in `qr.go`, so the quiet zone and the pixel size are identical in
+each form rather than whatever the library's own PNG writer happens to do. The
+PNG is a two-colour paletted image, which keeps it small.
+
+The QR encodes the short link, never the destination. A printed code that
+carried the destination would bypass the shortener, and the link would stop
+being editable — which is the main reason to self-host one.
+
+Two tests guard the rendering rather than the library: one compares every drawn
+pixel against `Code.Black` for that module, which catches a transposed x and y
+or a misplaced quiet zone, and one checks the three finder patterns a scanner
+locks onto.
 
 ## Deliberately out of scope
 

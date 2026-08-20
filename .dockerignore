@@ -1,0 +1,6 @@
+.git
+.env
+data/
+dist/
+teenyurl
+*_test.go

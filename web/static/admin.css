@@ -199,6 +199,16 @@ button { font: inherit; cursor: pointer; }
 
 .edit[open] summary { margin-bottom: 0.9rem; }
 
+.edit.qr img {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.35rem;
+}
+
+.edit.qr .hint { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--ink-soft); }
+
 .danger {
   margin-top: 1rem;
   padding-top: 0.9rem;

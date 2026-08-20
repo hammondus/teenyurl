@@ -1,0 +1,31 @@
+services:
+  teenyurl:
+    build: .
+    image: teenyurl:latest
+    container_name: teenyurl
+    restart: unless-stopped
+
+    # The password lives here, not in this file: the repository is public.
+    env_file: .env
+
+    environment:
+      TEENYURL_ADDR: ":8080"
+      TEENYURL_DATA_DIR: "/data"
+
+    # A bind mount rather than a named volume, so rsync can target the path
+    # directly. Create it first and give it to the same id the container runs
+    # as:
+    #   sudo mkdir -p /srv/short-url/data
+    #   sudo chown 65534:65534 /srv/short-url/data
+    volumes:
+      - /srv/short-url/data:/data
+
+    # No ports. Nginx Proxy Manager reaches teenyurl:8080 over the shared
+    # network, so the service has no host-facing socket and nothing can bypass
+    # the proxy, /admin included.
+    networks:
+      - blobbyboo
+
+networks:
+  blobbyboo:
+    external: true

@@ -113,9 +113,36 @@ func envInt(key string, fallback int) (int, error) {
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.LUTC)
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		if err := healthcheck(); err != nil {
+			log.Printf("teenyurl: %v", err)
+			os.Exit(1)
+		}
+		return
+	}
 	if err := run(); err != nil {
 		log.Fatalf("teenyurl: %v", err)
 	}
+}
+
+// healthcheck asks the running server whether it is up, and is what Docker
+// runs for HEALTHCHECK. The final image is built FROM scratch, so there is no
+// shell and no curl in the container: the binary has to check itself.
+func healthcheck() error {
+	addr := envOr("TEENYURL_ADDR", ":8080")
+	if strings.HasPrefix(addr, ":") {
+		addr = "127.0.0.1" + addr
+	}
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("http://" + addr + "/healthz")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("healthz returned %s", resp.Status)
+	}
+	return nil
 }
 
 func run() error {

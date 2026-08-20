@@ -91,6 +91,16 @@
         {{- end}}
       </p>
 
+      <details class="edit qr">
+        <summary>QR code</summary>
+        <img src="/admin/qr/{{.Code}}.svg" alt="QR code for {{.Code}}" width="180" height="180">
+        <p class="hint">
+          Download as
+          <a href="/admin/qr/{{.Code}}.svg" download="{{.Code}}.svg">SVG</a> for print, or
+          <a href="/admin/qr/{{.Code}}.png?size=1024" download="{{.Code}}.png">PNG</a>.
+        </p>
+      </details>
+
       <details class="edit">
         <summary>Edit</summary>
         <form method="post" action="/admin/links/{{.Code}}/update" class="link-form" data-tz>

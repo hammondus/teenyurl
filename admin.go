@@ -24,6 +24,7 @@ func (s *server) adminRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /admin/links", s.guard(s.handleCreate))
 	mux.HandleFunc("POST /admin/links/{code}/update", s.guard(s.handleUpdate))
 	mux.HandleFunc("POST /admin/links/{code}/delete", s.guard(s.handleDelete))
+	mux.HandleFunc("GET /admin/qr/{file}", s.guard(s.handleQR))
 }
 
 // guard requires a live session, checks the form token on writes, and sets the
