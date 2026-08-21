@@ -15,10 +15,10 @@ services:
     # A bind mount rather than a named volume, so rsync can target the path
     # directly. Create it first and give it to the same id the container runs
     # as:
-    #   sudo mkdir -p /srv/short-url/data
-    #   sudo chown 65534:65534 /srv/short-url/data
+    #   sudo mkdir -p /srv/teenyurl/data
+    #   sudo chown 65534:65534 /srv/teenyurl/data
     volumes:
-      - /srv/short-url/data:/data
+      - /srv/teenyurl/data:/data
 
     # No ports. Nginx Proxy Manager reaches teenyurl:8080 over the shared
     # network, so the service has no host-facing socket and nothing can bypass

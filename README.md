@@ -42,8 +42,8 @@ You need Docker, a domain pointed at your host, and a reverse proxy in front.
     unable to write.
 
     ```
-    sudo mkdir -p /srv/short-url/data
-    sudo chown 65534:65534 /srv/short-url/data
+    sudo mkdir -p /srv/teenyurl/data
+    sudo chown 65534:65534 /srv/teenyurl/data
     ```
 
 3.  Write the configuration. `.env` is git-ignored.
@@ -133,7 +133,7 @@ Both are safe to copy while the service runs, so `rsync` needs no downtime and
 no stop:
 
 ```
-rsync -a /srv/short-url/data/ backup-host:/backups/teenyurl/
+rsync -a /srv/teenyurl/data/ backup-host:/backups/teenyurl/
 ```
 
 `links.jsonl` only grows at the end, so a copy taken mid-write is the file

@@ -8,7 +8,7 @@ A self-hosted URL shortener on `url.example.com`. Single Go binary, embedded
 vanilla frontend, Docker container behind Nginx Proxy Manager.
 
 Module path and public repository: `github.com/hammondus/teenyurl`. The working
-directory is `~/dev/short-url`; only the module path matters to Go.
+directory is `~/dev/teenyurl`; only the module path matters to Go.
 
 The repository is public, so nothing under version control may hold a secret.
 The admin password lives in a git-ignored `.env` on the server.
@@ -90,7 +90,7 @@ links, rewrite it through temp file and `rename`.
 
 ### Backups need no downtime
 
-The data directory is a bind mount from `/srv/short-url/data` on the host, not
+The data directory is a bind mount from `/srv/teenyurl/data` on the host, not
 a named Docker volume, so `rsync` can target it directly. A named volume lives
 under `/var/lib/docker/volumes/`, which is root-owned and awkward to address.
 Copying while the service runs is safe:
@@ -306,7 +306,7 @@ The final image is `FROM scratch`, so there is no shell and no `curl` for a
 ## Container publishes no ports
 
 The container joins the existing external `blobbyboo` network, where Nginx
-Proxy Manager reaches `short-url:8080` directly. Omitting `ports:` means the
+Proxy Manager reaches `teenyurl:8080` directly. Omitting `ports:` means the
 service has no host-facing socket, so nothing can bypass the proxy — including
 `/admin`.
 
