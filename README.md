@@ -54,7 +54,9 @@ You need Docker, a domain pointed at your host, and a reverse proxy in front.
 
     Set `TEENYURL_BASE_URL` to your public address and
     `TEENYURL_ADMIN_PASSWORD` to something at least 12 characters long. The
-    service refuses to start without one.
+    service refuses to start without one. Set `TEENYURL_NETWORK` to the
+    Docker network your reverse proxy is already on; `docker network ls`
+    lists them.
 
 4.  Start it.
 
@@ -62,10 +64,11 @@ You need Docker, a domain pointed at your host, and a reverse proxy in front.
     docker compose up -d --build
     ```
 
-The compose file joins an existing external network named `blobbyboo` and
-publishes no ports. The proxy reaches `teenyurl:8080` over that network, so
-the service has no host-facing socket and nothing can bypass the proxy,
-`/admin` included. Change the network name if yours differs.
+The compose file joins the existing external network named by
+`TEENYURL_NETWORK` and publishes no ports. The proxy reaches `teenyurl:8080`
+over that network, so the service has no host-facing socket and nothing can
+bypass the proxy, `/admin` included. Compose joins the network but never
+creates it: a name that is not already there fails the deploy.
 
 ## Behind Nginx Proxy Manager
 
@@ -76,7 +79,7 @@ Add a proxy host:
 - **Websockets**: off.
 - **SSL**: request a certificate and turn on **Force SSL** and **HTTP/2**.
 
-Proxy Manager must be on the `blobbyboo` network for the hostname to resolve.
+Proxy Manager must be on the same network for the hostname to resolve.
 
 `TEENYURL_TRUSTED_PROXIES` decides which peers may set `X-Forwarded-For`. The
 built-in default is loopback only, which is right for running the binary
@@ -84,7 +87,7 @@ directly and wrong behind Compose. `.env.example` sets the bridge subnet
 instead. To find yours, run:
 
 ```
-docker network inspect blobbyboo --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
+docker network inspect "$TEENYURL_NETWORK" --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 ```
 
 Getting it right matters in both directions. Set it too wide and a container

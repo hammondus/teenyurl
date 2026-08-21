@@ -305,10 +305,20 @@ The final image is `FROM scratch`, so there is no shell and no `curl` for a
 
 ## Container publishes no ports
 
-The container joins the existing external `blobbyboo` network, where Nginx
-Proxy Manager reaches `teenyurl:8080` directly. Omitting `ports:` means the
-service has no host-facing socket, so nothing can bypass the proxy — including
-`/admin`.
+The container joins an existing external network, where Nginx Proxy Manager
+reaches `teenyurl:8080` directly. Omitting `ports:` means the service has no
+host-facing socket, so nothing can bypass the proxy — including `/admin`.
+
+The network's name is `${TEENYURL_NETWORK:-proxy}` rather than a literal,
+because the name is a property of the host, not of this project: it is
+whatever the proxy was already on, and every deployment answers differently.
+Hardcoding one name means anyone else editing a checked-in file to deploy,
+carrying that edit forever and colliding with every `git pull`. The name
+therefore lives in `.env` with the other host-specific values. Compose
+interpolates `${...}` from `./.env` — the automatic project env file, which
+happens to be the same path `env_file:` names, though they are separate
+mechanisms: `env_file` sets variables inside the container, interpolation
+substitutes into the compose file before it is parsed.
 
 The final image is `FROM scratch` with `USER 65534:65534`. No CA certificates,
 because the server makes no outbound calls. No `tzdata`, per above.

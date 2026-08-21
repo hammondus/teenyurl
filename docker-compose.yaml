@@ -24,8 +24,13 @@ services:
     # network, so the service has no host-facing socket and nothing can bypass
     # the proxy, /admin included.
     networks:
-      - blobbyboo
+      - proxy
 
+# External, so this file never creates the network: the proxy owns it and is
+# already on it. The name varies per host, so it lives in .env beside the
+# password rather than in a public file. Compose interpolates ${...} from
+# ./.env, which is the same file env_file names above.
 networks:
-  blobbyboo:
+  proxy:
     external: true
+    name: ${TEENYURL_NETWORK:-proxy}
