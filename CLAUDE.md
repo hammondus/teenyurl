@@ -20,6 +20,7 @@ make test      # go vet ./... && go test -race ./...
 make build     # binary for this machine
 make run       # build, then run against ./data, reading .env
 make release   # static linux/arm64 binary in dist/
+make check-env # compare .env against .env.example (check-env.awk)
 make docker-build
 ```
 

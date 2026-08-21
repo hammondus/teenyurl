@@ -6,7 +6,7 @@ DIST   := dist
 RELEASE_OS   := linux
 RELEASE_ARCH := arm64
 
-.PHONY: build test run release clean docker-build deploy logs
+.PHONY: build test run release clean docker-build check-env deploy logs
 
 # Build for this machine.
 build:
@@ -42,9 +42,18 @@ clean:
 docker-build:
 	docker compose build
 
-# On the server.
+# Compare the variable names in .env against .env.example, so a variable added
+# upstream is caught here rather than by a failed `docker compose up`. The
+# rules are in check-env.awk.
+check-env:
+	@test -f .env || { echo "no .env: cp .env.example .env and fill it in"; exit 1; }
+	@awk -f check-env.awk .env.example .env
+
+# On the server. check-env runs after the pull, not as a prerequisite: the
+# point is to test .env against the .env.example that just arrived.
 deploy:
 	git pull
+	$(MAKE) check-env
 	docker compose up -d --build
 
 logs:

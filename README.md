@@ -64,6 +64,10 @@ You need Docker, a domain pointed at your host, and a reverse proxy in front.
     docker compose up -d --build
     ```
 
+`make check-env` compares the names in your `.env` against `.env.example` and
+names anything missing. `make deploy` runs it after the pull, so a variable
+added upstream stops the deploy with a sentence rather than a Compose error.
+
 The compose file joins the existing external network named by
 `TEENYURL_NETWORK` and publishes no ports. The proxy reaches `teenyurl:8080`
 over that network, so the service has no host-facing socket and nothing can
@@ -156,6 +160,7 @@ make test      # go vet and go test -race
 make build     # build for this machine
 make release   # static linux/arm64 binary in dist/
 make run       # run locally against ./data, reading .env
+make check-env # check .env against .env.example
 ```
 
 ## Dependency

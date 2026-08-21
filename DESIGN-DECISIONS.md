@@ -351,6 +351,33 @@ pixel against `Code.Black` for that module, which catches a transposed x and y
 or a misplaced quiet zone, and one checks the three finder patterns a scanner
 locks onto.
 
+## `.env` drift is caught before Compose runs
+
+`make check-env` compares the variable *names* in `.env` against
+`.env.example` and exits non-zero if the server is missing one. `make deploy`
+runs it between `git pull` and `docker compose up -d --build`, not as a make
+prerequisite: a prerequisite runs before the recipe, so it would test `.env`
+against the `.env.example` that existed *before* the pull, which is exactly
+the version that cannot know about a newly added variable.
+
+Names only. The binary reads its configuration through `envOr` and friends and
+rejects a bad value at startup with a clear message, so checking values here
+would duplicate that and then drift from it. The gap worth closing is a name
+the binary never receives at all: `TEENYURL_NETWORK` is read by Compose, and a
+missing one fails the deploy rather than the process. An empty value counts as
+missing, because `envOr` already treats `""` as unset.
+
+A name in `.env` that is absent from `.env.example` is reported but not fatal.
+Compose reads that file too and has variables of its own, so treating unknown
+names as errors would make the check wrong for a file it does not own.
+
+The rules live in `check-env.awk` rather than inline in the recipe. Make joins
+a backslash-continued recipe into one line, which strips the newlines an awk
+program uses to separate statements; surviving that needs a semicolon after
+almost every line, and the result is unreadable. A separate file is also the
+version that can be run directly:
+`awk -f check-env.awk .env.example .env`.
+
 ## Deliberately out of scope
 
 Multi-user accounts, per-click event logs and geographic reporting, tags and
