@@ -79,9 +79,19 @@ Add a proxy host:
 Proxy Manager must be on the `blobbyboo` network for the hostname to resolve.
 
 `TEENYURL_TRUSTED_PROXIES` decides which peers may set `X-Forwarded-For`. The
-default covers the usual Docker bridge ranges. Getting it right matters:
-the login rate limit counts attempts per client address, and an attacker who
-can forge that header resets their own limit.
+built-in default is loopback only, which is right for running the binary
+directly and wrong behind Compose. `.env.example` sets the bridge subnet
+instead. To find yours, run:
+
+```
+docker network inspect blobbyboo --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
+```
+
+Getting it right matters in both directions. Set it too wide and a container
+that can already reach `teenyurl:8080` forges the header and resets its own
+login rate limit. Set it too narrow and every request is attributed to the
+proxy, so five wrong passwords from anyone lock everyone out for fifteen
+minutes.
 
 ## Configuration
 
