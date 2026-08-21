@@ -3,6 +3,28 @@
 A self-hosted URL shortener. One Go binary, no database, no third-party
 JavaScript, and one dependency.
 
+A generated code is 6 characters drawn from a 57-character alphabet, which
+gives about 34 billion combinations. The alphabet is base62 without `0`, `O`,
+`I`, `l`, and `1`, so nothing in a code is ambiguous to read off paper. To
+change the length, set `TEENYURL_CODE_LEN` to a value between 1 and 64. The
+new length applies to codes minted after the change. Existing links keep the
+codes they have, so a printed link stays valid.
+
+Every link stays in memory. Measured in the container on linux/arm64, once
+the process has settled:
+
+| Links | Container memory |
+| --- | --- |
+| 0 | 4.6 MB |
+| 1,000 | 6.8 MB |
+| 10,000 | 10.2 MB |
+| 100,000 | 51 MB |
+
+The link data is about 300 bytes per link. Everything else is the Go runtime
+and the garbage collector's headroom, so the first thousand links cost more
+each than the next ninety-nine thousand. teenyurl runs on the smallest
+instance a provider sells.
+
 Short links point wherever you say, and you can change where they point later.
 That is the reason to run your own rather than use a public shortener: a link
 you printed, emailed, or turned into a QR code stays valid when the
