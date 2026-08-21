@@ -430,7 +430,7 @@ func TestAdminListShowsLinks(t *testing.T) {
 
 	body := getAs(t, s, "/admin", cookie).Body.String()
 	for _, want := range []string{"docs", "https://example.com/manual", "the manual",
-		"https://url.hammond.zone/docs", "1 click"} {
+		"https://url.example.com/docs", "1 click"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("the admin page does not show %q", want)
 		}

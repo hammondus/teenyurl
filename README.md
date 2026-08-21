@@ -71,7 +71,7 @@ the service has no host-facing socket and nothing can bypass the proxy,
 
 Add a proxy host:
 
-- **Domain**: your short domain, for example `url.hammond.zone`.
+- **Domain**: your short domain, for example `url.example.com`.
 - **Forward hostname**: `teenyurl`, **port** `8080`, scheme `http`.
 - **Websockets**: off.
 - **SSL**: request a certificate and turn on **Force SSL** and **HTTP/2**.

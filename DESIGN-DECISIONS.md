@@ -4,7 +4,7 @@ Rationale for choices that aren't obvious from the code, and the alternatives
 that were rejected. Written before the first line of code and kept current as
 the code landed.
 
-A self-hosted URL shortener on `url.hammond.zone`. Single Go binary, embedded
+A self-hosted URL shortener on `url.example.com`. Single Go binary, embedded
 vanilla frontend, Docker container behind Nginx Proxy Manager.
 
 Module path and public repository: `github.com/hammondus/teenyurl`. The working
@@ -279,7 +279,7 @@ both would mean two places to look when a setting appears wrong.
 
 ```
 TEENYURL_ADDR=:8080
-TEENYURL_BASE_URL=https://url.hammond.zone
+TEENYURL_BASE_URL=https://url.example.com
 TEENYURL_DATA_DIR=/data
 TEENYURL_ADMIN_PASSWORD=          # .env on the server, never committed
 TEENYURL_TRUSTED_PROXIES=172.18.0.0/16,127.0.0.1/32,::1/128

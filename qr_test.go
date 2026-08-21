@@ -14,7 +14,7 @@ import (
 // library's own answer for that module. It catches the two errors this code
 // can actually make: swapping x and y, and misplacing the quiet zone.
 func TestQRRenderingMatchesTheModuleGrid(t *testing.T) {
-	c, err := qr.Encode("https://url.hammond.zone/docs", qr.M)
+	c, err := qr.Encode("https://url.example.com/docs", qr.M)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestQRRenderingMatchesTheModuleGrid(t *testing.T) {
 // TestQRFinderPattern checks the three corner squares that a scanner locks
 // onto. Their shape is fixed by the specification.
 func TestQRFinderPattern(t *testing.T) {
-	c, err := qr.Encode("https://url.hammond.zone/docs", qr.M)
+	c, err := qr.Encode("https://url.example.com/docs", qr.M)
 	if err != nil {
 		t.Fatal(err)
 	}

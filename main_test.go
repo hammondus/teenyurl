@@ -45,7 +45,7 @@ func TestLoadConfigRequiresAPassword(t *testing.T) {
 func TestLoadConfigFromEnvironment(t *testing.T) {
 	t.Setenv("TEENYURL_ADMIN_PASSWORD", testPassword)
 	t.Setenv("TEENYURL_ADDR", "127.0.0.1:9000")
-	t.Setenv("TEENYURL_BASE_URL", "https://url.hammond.zone/")
+	t.Setenv("TEENYURL_BASE_URL", "https://url.example.com/")
 	t.Setenv("TEENYURL_FLUSH_INTERVAL", "5s")
 	t.Setenv("TEENYURL_CODE_LEN", "8")
 
@@ -57,10 +57,10 @@ func TestLoadConfigFromEnvironment(t *testing.T) {
 		t.Errorf("addr = %q", c.addr)
 	}
 	// A trailing slash would produce short links with a double slash.
-	if c.baseURL != "https://url.hammond.zone" {
+	if c.baseURL != "https://url.example.com" {
 		t.Errorf("baseURL = %q, want the trailing slash trimmed", c.baseURL)
 	}
-	if c.host() != "url.hammond.zone" {
+	if c.host() != "url.example.com" {
 		t.Errorf("host = %q", c.host())
 	}
 	if c.flushInterval != 5*time.Second || c.codeLen != 8 {
@@ -73,7 +73,7 @@ func TestLoadConfigFromEnvironment(t *testing.T) {
 
 func TestLoadConfigRejectsBadValues(t *testing.T) {
 	tests := []struct{ key, value string }{
-		{"TEENYURL_BASE_URL", "url.hammond.zone"},
+		{"TEENYURL_BASE_URL", "url.example.com"},
 		{"TEENYURL_BASE_URL", "/relative"},
 		{"TEENYURL_FLUSH_INTERVAL", "soon"},
 		{"TEENYURL_FLUSH_INTERVAL", "0s"},

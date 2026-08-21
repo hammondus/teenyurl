@@ -22,7 +22,7 @@ func testServer(t *testing.T) *server {
 		t.Fatal(err)
 	}
 	cfg := config{
-		baseURL:       "https://url.hammond.zone",
+		baseURL:       "https://url.example.com",
 		codeLen:       6,
 		adminPassword: testPassword,
 		sessionTTL:    24 * time.Hour,
@@ -172,7 +172,7 @@ func TestHomePage(t *testing.T) {
 	if !strings.Contains(body, repoURL) {
 		t.Errorf("landing page does not link to %s", repoURL)
 	}
-	if !strings.Contains(body, "url.hammond.zone") {
+	if !strings.Contains(body, "url.example.com") {
 		t.Error("landing page does not name the host")
 	}
 	// A page carries the URLs of the assets it references, so serving it
